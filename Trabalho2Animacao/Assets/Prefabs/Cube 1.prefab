@@ -320,3 +320,6 @@ MonoBehaviour:
   Stretch: {fileID: 3289430636544792741}
   offset: {x: 30, y: 30, z: 30}
   speed: 5
+  particleA: {fileID: 8139372845021406602, guid: edf4688b9ed717b49a917301411ecba7, type: 3}
+  particleB: {fileID: 8139372845021406602, guid: 1c9aae5022089074ab0b7c9c3feb293e, type: 3}
+  particleC: {fileID: 8139372845021406602, guid: 561f09f956fae0c4da48e50eed6ec70f, type: 3}

@@ -1,5 +1,5 @@
 using System.Collections;
-//using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 using Unity.Jobs;
 using Unity.Burst;
@@ -24,11 +24,11 @@ namespace Deform
         public override DataFlags DataFlags => DataFlags.Vertices;
 
         public float speed = 5.0f;
-        private int stateIdle = 0;
-        private int stateTwist = 1;
-        private int stateBend = 2;
-        private int stateSquash = 3;
-        private int stateStretch = 4;
+        private const int stateIdle = 0;
+        private const int stateTwist = 1;
+        private const int stateBend = 2;
+        private const int stateSquash = 3;
+        private const int stateStretch = 4;
         private int curState = 0;
 
      
@@ -39,6 +39,13 @@ namespace Deform
         private bool stretching = false;
         private bool squashingAgain = false;
         private int dir = 1;
+
+
+        public GameObject particleA;
+        public GameObject particleB;
+        public GameObject particleC;
+
+        private List<GameObject> particlesA;
 
         public override JobHandle Process(MeshData data, JobHandle dependency = default)
         {
@@ -73,6 +80,8 @@ namespace Deform
             squashing = false;
             stretching = false;
            squashingAgain = false;
+
+            particlesA = new List<GameObject>();
     }
 
         public void Update()
@@ -186,8 +195,38 @@ namespace Deform
             {
                 curState = stateIdle;
             }
-            
 
+            switch (curState)
+            {
+                case stateTwist:
+                    GameObject newParticle;
+                    newParticle= Instantiate(particleA,transform.position,Quaternion.identity);
+                    particlesA.Add(newParticle);
+                    break;
+                case stateBend:
+                    GameObject newParticleB;
+                    newParticleB = Instantiate(particleB, transform.position, Quaternion.identity);
+                    particlesA.Add(newParticleB);
+                    break;
+                case stateSquash:
+                    GameObject newParticleC;
+                    newParticleC = Instantiate(particleC, transform.position, Quaternion.identity);
+                    particlesA.Add(newParticleC);
+                    break;
+                default:
+                    break;
+            }
+
+
+            for (int i = 0; i < particlesA.Count; i++)
+            {
+                var p = particlesA[i];
+                if (p.GetComponent<Particle>().ativa == false)
+                {
+                    DestroyImmediate(p,true);
+                    particlesA.RemoveAt(i);
+                }
+            }
         }
 
         public void OnMouseDown()

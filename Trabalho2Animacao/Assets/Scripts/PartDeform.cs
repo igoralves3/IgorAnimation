@@ -246,7 +246,7 @@ namespace Deform
 
                 //var delta = curSpeed * dir * Time.deltaTime;
 
-                curFrame -= 1;
+                curFrame -= curSpeed;
                 if (curFrame <= 0)
                 {
                     curFrame = 360;

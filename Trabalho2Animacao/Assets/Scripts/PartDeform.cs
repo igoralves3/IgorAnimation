@@ -9,6 +9,8 @@ using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Threading;
 using System.Collections.Specialized;
+//using System.Diagnostics;
+using System;
 
 namespace Deform
 {
@@ -23,7 +25,9 @@ namespace Deform
         public Vector3 offset;
         public override DataFlags DataFlags => DataFlags.Vertices;
 
-        public float speed = 5.0f;
+        public float speed = 10.0f;
+        public float curSpeed = 0.0f;
+        public int framesSpeedUp = 0;
         private const int stateIdle = 0;
         private const int stateTwist = 1;
         private const int stateBend = 2;
@@ -74,6 +78,10 @@ namespace Deform
         {
             //Twist = this.gameObject.transform.GetChild(0).GetChild(0).gameObject;
 
+            curSpeed = 0.0f;
+            speed = 10.0f;
+            framesSpeedUp = 0;
+
             curState = stateIdle;
             bendDelta = 0;
             dir = 1;
@@ -86,11 +94,21 @@ namespace Deform
 
         public void Update()
         {
-            if ((Input.GetKey("left") || Input.GetKey("a")) && curState == stateIdle) {
+            Debug.Log(curSpeed);
+
+            bool leftPress = Input.GetKey("left") || Input.GetKey("a");
+            bool rightPress = (Input.GetKey("right") || Input.GetKey("d"));
+
+
+            if (leftPress //&& curState == stateIdle
+                ) {
 
                 curState = stateTwist;
-                dir = 1;
-                var delta = speed * Time.deltaTime;
+                dir = -1;
+
+               
+                /*
+                var delta = curSpeed * dir * Time.deltaTime;
 
                 curFrame -=1;
                 if (curFrame <= 0)
@@ -101,14 +119,19 @@ namespace Deform
                 else
                 {
                 Twist.GetComponent<TwistDeformer>().StartAngle = curFrame;
-                } 
+                }
+
+                this.transform.position += new Vector3(delta,0,0);*/
                 
-                this.transform.position -= new Vector3(delta,0,0);
-            }else if ((Input.GetKey("right") || Input.GetKey("d")) && curState == stateIdle)
+            }else if (rightPress //&& curState == stateIdle
+                )
             {
                 curState = stateTwist;
-                dir = -1;
-                var delta = speed * Time.deltaTime;
+                dir = 1;
+
+                
+                /*
+                var delta = curSpeed * dir * Time.deltaTime;
                 curFrame += 1;
                 if (curFrame >= 360)
                 {
@@ -119,8 +142,10 @@ namespace Deform
                 {
                     Twist.GetComponent<TwistDeformer>().StartAngle = curFrame;
                 }
-                this.transform.position += new Vector3(delta,0,0);
-            }else if (bendDelta == 1)
+                this.transform.position += new Vector3(delta,0,0);*/
+                
+            }
+            else if (bendDelta == 1)
             {
                 curState = stateBend;
                 if (Bend.GetComponent<BendDeformer>().Angle <= 180) {
@@ -196,6 +221,38 @@ namespace Deform
                 curState = stateIdle;
             }
 
+            if (curState == stateTwist)
+            { 
+                framesSpeedUp++;
+                if (framesSpeedUp >= 10) {
+                    framesSpeedUp = 0;
+                    if (curSpeed <= speed)
+                    {
+                        curSpeed += 0.1f;
+                    }
+                }
+
+                var delta = curSpeed * dir * Time.deltaTime;
+
+                curFrame -= 1;
+                if (curFrame <= 0)
+                {
+                    curFrame = 360;
+                    Twist.GetComponent<TwistDeformer>().StartAngle = 360;
+                }
+                else
+                {
+                    Twist.GetComponent<TwistDeformer>().StartAngle = curFrame;
+                }
+
+                this.transform.position += new Vector3(delta, 0, 0);
+            }
+            else
+            {
+                curSpeed = 0f;
+            }
+            
+
             switch (curState)
             {
                 case stateTwist:
@@ -238,7 +295,18 @@ namespace Deform
             }
         }
 
-        
+        Vector3 CurveHermitPoint(Vector3 p0, Vector3 p1, Vector3 t0, Vector3 t1, float t)
+        {
+            float t2 = t * t;
+            float t3 = t2 * t;
+
+            Vector3 h00 = (2 * t3 - 3 * t2 + 1) * p0;
+            Vector3 h01 = (t3 - 2 * t2 + t) * t0;
+            Vector3 h10 = (-2 * t3 + 3 * t2) * p1;
+            Vector3 h11 = (t3 - t2) * t1;
+
+            return h00 + h01 + h10 + h11;
+        }
 
     }
 }

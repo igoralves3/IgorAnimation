@@ -51,6 +51,10 @@ namespace Deform
 
         private List<GameObject> particlesA;
 
+        public float radius = 5f; // Raio do círculo
+        //public float speed = 1f; // Velocidade do movimento
+        private float angle = 0f; // Ângulo atual
+
         public override JobHandle Process(MeshData data, JobHandle dependency = default)
         {
            
@@ -90,7 +94,15 @@ namespace Deform
            squashingAgain = false;
 
             particlesA = new List<GameObject>();
-    }
+
+            // Calcula a nova posição
+            float x = Mathf.Cos(angle) * radius;
+            float y = Mathf.Sin(angle) * radius;
+
+            // Atualiza a posição do objeto
+            //transform.position = new Vector3(x, transform.position.y, z);
+            transform.position = new Vector3(x, y, transform.position.z);
+        }
 
         public void Update()
         {
@@ -232,7 +244,7 @@ namespace Deform
                     }
                 }
 
-                var delta = curSpeed * dir * Time.deltaTime;
+                //var delta = curSpeed * dir * Time.deltaTime;
 
                 curFrame -= 1;
                 if (curFrame <= 0)
@@ -245,7 +257,9 @@ namespace Deform
                     Twist.GetComponent<TwistDeformer>().StartAngle = curFrame;
                 }
 
-                this.transform.position += new Vector3(delta, 0, 0);
+                //this.transform.position += new Vector3(delta, 0, 0);
+
+                UpdateMove();
             }
             else
             {
@@ -306,6 +320,29 @@ namespace Deform
             Vector3 h11 = (t3 - t2) * t1;
 
             return h00 + h01 + h10 + h11;
+        }
+
+        // Função para calcular um ponto na curva de Bézier
+        Vector3 CalculateBezierPoint(float t, Vector3 p0, Vector3 p1, Vector3 p2)
+        {
+            return Mathf.Pow(1 - t, 2) * p0 +
+                   2 * (1 - t) * t * p1 +
+                   Mathf.Pow(t, 2) * p2;
+        }
+
+
+        void UpdateMove()
+        {
+            // Incrementa o ângulo com base na velocidade e no tempo
+            angle += curSpeed *dir * Time.deltaTime;
+
+            // Calcula a nova posição
+            float x = Mathf.Cos(angle) * radius;
+            float y = Mathf.Sin(angle) * radius;
+
+            // Atualiza a posição do objeto
+            //transform.position = new Vector3(x, transform.position.y, z);
+            transform.position = new Vector3(x, y, transform.position.z);
         }
 
     }

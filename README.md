@@ -65,6 +65,9 @@ Contribuições são bem-vindas! Sinta-se à vontade para abrir issues ou pull r
 4. Push para a branch (`git push origin feature/nova-funcionalidade`)
 5. Abra um Pull Request
 
+## Assets externos
+https://assetstore.unity.com/packages/tools/modeling/deform-148425
+
 ## Licença
 
 Este projeto está licenciado sob a [Licença MIT](LICENSE).
